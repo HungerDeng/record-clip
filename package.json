@@ -9,9 +9,14 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "echo \"No linting configured\""
+    "lint": "echo \"No linting configured\"",
+    "dev": "concurrently \"npm run start\" \"npm run watch-jsx\"",
+    "watch-jsx": "webpack --config webpack.config.js --watch"
   },
   "devDependencies": {
+    "@babel/core": "^7.25.7",
+    "@babel/preset-env": "^7.25.7",
+    "@babel/preset-react": "^7.25.7",
     "@electron-forge/cli": "^7.5.0",
     "@electron-forge/maker-deb": "^7.5.0",
     "@electron-forge/maker-rpm": "^7.5.0",
@@ -20,7 +25,10 @@
     "@electron-forge/plugin-auto-unpack-natives": "^7.5.0",
     "@electron-forge/plugin-fuses": "^7.5.0",
     "@electron/fuses": "^1.8.0",
-    "electron": "32.1.2"
+    "babel-loader": "^9.2.1",
+    "concurrently": "^9.0.1",
+    "electron": "32.1.2",
+    "webpack-cli": "^5.1.4"
   },
   "keywords": [],
   "author": {
@@ -29,6 +37,10 @@
   },
   "license": "MIT",
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.1"
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "electron-squirrel-startup": "^1.0.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   }
 }
