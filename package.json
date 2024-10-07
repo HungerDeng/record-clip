@@ -10,7 +10,8 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\"",
-    "dev": "concurrently \"npm run start\" \"npm run watch-jsx\"",
+    "dev": "concurrently \"npm run start\" \"npm run watch-css\" \"npm run watch-jsx\"",
+    "watch-css": "tailwindcss -i src/render/styles.css -o src/render/output.css --watch",
     "watch-jsx": "webpack --config webpack.config.js --watch"
   },
   "devDependencies": {
