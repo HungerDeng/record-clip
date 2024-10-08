@@ -1,26 +1,26 @@
-const path = require('node:path');
 const { BrowserWindow } = require('electron');
+const { loadRoute, preloadPath } = require('../utils/routes');
+
+const routeName = 'record';
 
 const createRecordWindow = () => {
   const mainWindow = new BrowserWindow({
-    // width: 400,
     height: 400,
-    width: 1000,
-    // minHeight: 400,
-    // maxHeight: 400,
+    width: 400,
     // minWidth和maxWidth一样，都设置为800，表示宽度不允许调整
     // minWidth: 400,
     // maxWidth: 400,
-    resizable: true,
+    useContentSize: true,
+    resizable: false,
+    fullscreenable: false,
+    maximizable: false,
     titleBarStyle: 'hidden',
     webPreferences: {
-      preload: path.join(__dirname, '..', '..', 'render', 'pages', 'record', 'preload.js'),
+      preload: preloadPath(routeName),
     },
   });
 
-  mainWindow.loadFile(path.join(__dirname, '..', '..', 'render', 'pages', 'record', 'index.html'));
-
-  mainWindow.webContents.openDevTools();
+  loadRoute(mainWindow, routeName, { openDevTools: false });
   return mainWindow;
 };
 

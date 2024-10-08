@@ -4,8 +4,7 @@ module.exports = {
   mode: 'development',
   entry: {
     record: './src/render/pages/record/index.jsx',
-    // 可以添加更多入口点，例如：
-    // anotherEntry: './src/render/anotherEntry/index.js',
+    'device-choices': './src/render/pages/device-choices/index.jsx',
   },
   output: {
     filename: '[name]/bundle.js',
