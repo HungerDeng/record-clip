@@ -3,7 +3,7 @@ const path = require('path');
 module.exports = {
   mode: 'development',
   entry: {
-    clip: './src/render/clip/index.jsx',
+    record: './src/render/pages/record/index.jsx',
     // 可以添加更多入口点，例如：
     // anotherEntry: './src/render/anotherEntry/index.js',
   },

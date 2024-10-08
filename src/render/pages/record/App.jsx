@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { 
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@/render/components/ui/dropdown-menu';
 
 function App() {
   const [isListening, setIsListening] = useState(false);
   const [microphoneDevices, setMicrophoneDevices] = useState([]);
   const [selectedDevice, setSelectedDevice] = useState(null);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     // Get available microphone devices
     navigator.mediaDevices.enumerateDevices()
       .then(devices => {
+        console.log(devices);
         const mics = devices.filter(device => device.kind === 'audioinput');
         setMicrophoneDevices(mics);
         if (mics.length > 0) {
@@ -23,13 +29,8 @@ function App() {
     setIsListening(!isListening);
   };
 
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
   const selectDevice = (device) => {
     setSelectedDevice(device);
-    setIsDropdownOpen(false);
   };
 
   return (
@@ -81,23 +82,21 @@ function App() {
               <span className="text-xs">{selectedDevice ? selectedDevice.label.slice(0, 10) : 'Microphone'}</span>
             </button>
             {isListening && (
-              <button onClick={toggleDropdown} className="ml-1">▼</button>
-            )}
-            {isDropdownOpen && (
-              <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="ml-1">▼</button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-48">
                   {microphoneDevices.map((device) => (
-                    <button
+                    <DropdownMenuItem
                       key={device.deviceId}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full text-left"
-                      role="menuitem"
-                      onClick={() => selectDevice(device)}
+                      onSelect={() => selectDevice(device)}
                     >
                       {device.label}
-                    </button>
+                    </DropdownMenuItem>
                   ))}
-                </div>
-              </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
           </div>
 
