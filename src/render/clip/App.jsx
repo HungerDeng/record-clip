@@ -1,0 +1,99 @@
+import React, { useState, useEffect } from 'react';
+
+function App() {
+  const [isListening, setIsListening] = useState(false);
+  const [microphoneDevices, setMicrophoneDevices] = useState([]);
+  const [selectedDevice, setSelectedDevice] = useState(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    // Get available microphone devices
+    navigator.mediaDevices.enumerateDevices()
+      .then(devices => {
+        const mics = devices.filter(device => device.kind === 'audioinput');
+        setMicrophoneDevices(mics);
+        if (mics.length > 0) {
+          setSelectedDevice(mics[0]);
+        }
+      })
+      .catch(err => console.error("Error enumerating devices:", err));
+  }, []);
+
+  const toggleMicrophone = () => {
+    setIsListening(!isListening);
+  };
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const selectDevice = (device) => {
+    setSelectedDevice(device);
+    setIsDropdownOpen(false);
+  };
+
+  return (
+    <div className="bg-gray-800 text-white p-4 rounded-lg shadow-lg w-80">
+      {/* Resolution display */}
+      <div className="flex justify-between mb-6">
+        <span className="bg-gray-700 px-2 py-1 rounded">1080p</span>
+        <span className="bg-gray-700 px-2 py-1 rounded">1080p</span>
+      </div>
+      
+      {/* Record button */}
+      <div className="flex justify-center mb-6">
+        <button className="w-24 h-24 bg-red-600 rounded-full focus:outline-none hover:bg-red-700"></button>
+      </div>
+      
+      {/* Control buttons */}
+      <div className="flex justify-between">
+        <div className="relative flex items-center hover:bg-gray-700 rounded-md p-2">
+          <button 
+            className={`flex flex-col items-center ${isListening ? '' : 'opacity-50'}`}
+            onClick={toggleMicrophone}
+          >
+            <svg className="w-8 h-8 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+            </svg>
+            <span className="text-xs">{selectedDevice ? selectedDevice.label.slice(0, 10) : 'Microphone'}</span>
+          </button>
+          {isListening && (
+            <button onClick={toggleDropdown} className="ml-1">▼</button>
+          )}
+          {isDropdownOpen && (
+            <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+              <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                {microphoneDevices.map((device) => (
+                  <button
+                    key={device.deviceId}
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full text-left"
+                    role="menuitem"
+                    onClick={() => selectDevice(device)}
+                  >
+                    {device.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <button className="flex flex-col items-center opacity-50">
+          <svg className="w-8 h-8 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          <span className="text-xs">Camera off</span>
+        </button>
+        
+        <button className="flex flex-col items-center opacity-50">
+          <svg className="w-8 h-8 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          <span className="text-xs">Screen off</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default App;
