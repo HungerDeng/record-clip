@@ -1,42 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@/render/components/ui/dropdown-menu';
+import { Button } from '@/render/components/ui/button';
+import { EnvelopeOpenIcon, SlashIcon } from '@radix-ui/react-icons';
 
 function App() {
-  const [isListening, setIsListening] = useState(false);
-  const [microphoneDevices, setMicrophoneDevices] = useState([]);
-  const [selectedDevice, setSelectedDevice] = useState(null);
+  const [audioInputDevices, setAudioInputDevices] = useState([]);
+  const [videoInputDevices, setVideoInputDevices] = useState([]);
 
   useEffect(() => {
     // Get available microphone devices
     navigator.mediaDevices.enumerateDevices()
       .then(devices => {
-        console.log(devices);
-        const mics = devices.filter(device => device.kind === 'audioinput');
-        setMicrophoneDevices(mics);
-        if (mics.length > 0) {
-          setSelectedDevice(mics[0]);
-        }
+        const audioInputs = devices.filter(device => device.kind === 'audioinput');
+        setAudioInputDevices(audioInputs);
+        const videoInputs = devices.filter(device => device.kind === 'videoinput');
+        setVideoInputDevices(videoInputs);
       })
       .catch(err => console.error("Error enumerating devices:", err));
   }, []);
 
-  const toggleMicrophone = () => {
-    setIsListening(!isListening);
-  };
-
-  const selectDevice = (device) => {
-    setSelectedDevice(device);
-  };
-
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-full bg-gray-500 overflow-hidden scrollbar-hide">
       {/* 自定义标题栏 */}
-      <div className="flex items-center justify-end bg-gray-800 text-white h-8 px-2 drag">
+      <div className="flex items-center justify-end text-white h-8 px-2 drag">
         <div className="flex items-center space-x-4 no-drag">
           <button className="hover:bg-gray-700 px-2 py-1 rounded">
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -57,12 +48,7 @@ function App() {
       </div>
 
       {/* 主要内容 */}
-      <div className="flex-grow bg-gray-800 text-white p-4">
-        {/* Resolution display */}
-        <div className="flex justify-between mb-6">
-          <span className="bg-gray-700 px-2 py-1 rounded">1080p</span>
-          <span className="bg-gray-700 px-2 py-1 rounded">1080p</span>
-        </div>
+      <div className="flex-grow flex flex-col text-white p-4 pt-1">
         
         {/* Record button */}
         <div className="flex justify-center mb-6">
@@ -70,49 +56,58 @@ function App() {
         </div>
         
         {/* Control buttons */}
-        <div className="flex justify-between">
-          <div className="relative flex items-center hover:bg-gray-700 rounded-md p-2">
-            <button 
-              className={`flex flex-col items-center ${isListening ? '' : 'opacity-50'}`}
-              onClick={toggleMicrophone}
-            >
-              <svg className="w-8 h-8 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-              </svg>
-              <span className="text-xs">{selectedDevice ? selectedDevice.label.slice(0, 10) : 'Microphone'}</span>
-            </button>
-            {isListening && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="ml-1">▼</button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-48">
-                  {microphoneDevices.map((device) => (
-                    <DropdownMenuItem
-                      key={device.deviceId}
-                      onSelect={() => selectDevice(device)}
-                    >
-                      {device.label}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
+        <div className="flex justify-between items-stretch">
+          {MButtom({
+            onClickCb: (newOpened, device) => {
+              if (newOpened) {
+                console.log('打开', device);
+              } else {
+                console.log('关闭', device);
+              }
+            },
+            unopenText: 'Microphone off',
+            supporteDevices: audioInputDevices,
+          })}
 
-          <button className="flex flex-col items-center opacity-50">
+          {MButtom({
+            onClickCb: (newOpened, device) => {
+              if (newOpened) {
+                console.log('打开', device);
+              } else {
+                console.log('关闭', device);
+              }
+            },
+            unopenText: 'Camera off',
+            supporteDevices: videoInputDevices,
+          })}
+
+          {
+            MButtom({
+              onClickCb: (newOpened, device) => {
+                if (newOpened) {
+                  console.log('打开', device);
+                } else {
+                  console.log('关闭', device);
+                }
+              },
+              unopenText: 'Screen off',
+            })
+          }
+
+
+          {/* <button className="flex flex-col items-center opacity-50 hover:bg-gray-700 rounded-md p-2 px-4">
             <svg className="w-8 h-8 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
             <span className="text-xs">Camera off</span>
-          </button>
+          </button> */}
           
-          <button className="flex flex-col items-center opacity-50">
+          {/* <button className="flex flex-col items-center opacity-50 hover:bg-gray-700 rounded-md p-2 px-4">
             <svg className="w-8 h-8 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
             <span className="text-xs">Screen off</span>
-          </button>
+          </button> */}
         </div>
       </div>
     </div>
@@ -120,3 +115,67 @@ function App() {
 }
 
 export default App;
+
+
+function MButtom({onClickCb, supporteDevices, unopenText, }) {
+
+  const [isOpened, setIsOpened] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState(null);
+
+  useEffect(() => {
+    if (supporteDevices && supporteDevices.length > 0) {
+      setSelectedDevice(supporteDevices[0]);
+    }
+  }, [supporteDevices]);
+
+  const onClickHandler = useCallback(() => {
+    const newOpened = !isOpened;
+    setIsOpened(newOpened);
+    onClickCb(newOpened, selectedDevice);
+  }, [isOpened, selectedDevice]);
+
+  const onSelectHandler = useCallback((device) => {
+    setSelectedDevice(device);
+    onClickCb(isOpened, device);
+  }, [isOpened, selectedDevice]);
+
+  return (
+    <div className="relative flex max-w-[30%]">
+      <Button variant="ghost" className={`flex flex-col h-fit hover:bg-gray-600 overflow-hidden ${isOpened ? '' : 'opacity-50'}`} onClick={onClickHandler}>
+        <SlashIcon className="mr-2 h-8 w-8" />
+        {!isOpened ? unopenText : selectedDevice.label}
+      </Button>
+
+    {/* <button
+      className={`flex flex-col items-center ${isOpened ? '' : 'opacity-50'}`}
+      onClick={onClickHandler}
+    >
+      <svg className="w-8 h-8 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+      </svg>
+      <span className="text-xs text-nowrap text-ellipsis">{!isOpened ? unopenText : selectedDevice.label}</span>
+    </button> */}
+    {isOpened && (
+      <div className="absolute right-0 top-0 h-full w-1/5 flex items-center justify-center rounded-md hover:bg-gray-700">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="ml-1">▼</button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-48">
+            {supporteDevices.map((device) => (
+              <DropdownMenuItem
+                key={device.deviceId}
+                onSelect={() => {
+                  onSelectHandler(device)
+                }}
+              >
+                {device.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    )}
+  </div>
+  );
+}
